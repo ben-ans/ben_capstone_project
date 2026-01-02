@@ -3,7 +3,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractUser, Permission
 
 
 class UserAccountManager(BaseUserManager):
-    def create_user(self, username, email, first_name, last_name, password=None, role='tenant', **extra_fields):
+    def create_user(self, email, first_name, last_name, password=None, role='tenant', **extra_fields):
         """
         Creates and saves a user with the given username, email, first name, and last name.
         """
@@ -11,7 +11,6 @@ class UserAccountManager(BaseUserManager):
             raise ValueError("Users must have an email address")
 
         user = self.model(
-            username=username,
             first_name=first_name,
             last_name=last_name,
             email=self.normalize_email(email),
@@ -23,12 +22,11 @@ class UserAccountManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, first_name, last_name, password=None, **extra_fields):
+    def create_superuser(self, email, first_name, last_name, password=None, **extra_fields):
         """
         Creates and saves a superuser with the given details.
         """
         user = self.create_user(
-            username=username,
             email=email,
             first_name=first_name,
             last_name=last_name,
@@ -41,12 +39,11 @@ class UserAccountManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_landlord(self, username, email, first_name, last_name, password=None, **extra_fields):
+    def create_landlord(self, email, first_name, last_name, password=None, **extra_fields):
         """
         Creates and saves a landlord user.
         """
         return self.create_user(
-            username=username,
             email=email,
             first_name=first_name,
             last_name=last_name,
@@ -55,12 +52,11 @@ class UserAccountManager(BaseUserManager):
             **extra_fields
         )
 
-    def create_tenant(self, username, email, first_name, last_name, password=None, **extra_fields):
+    def create_tenant(self, email, first_name, last_name, password=None, **extra_fields):
         """
         Creates and saves a tenant user.
         """
         return self.create_user(
-            username=username,
             email=email,
             first_name=first_name,
             last_name=last_name,
@@ -73,6 +69,8 @@ class UserAccountManager(BaseUserManager):
 
 
 class UserAccount(AbstractUser, PermissionsMixin):
+    username = None 
+    
     class Role(models.TextChoices):
         STAFF = 'staff', 'staff'
         LANDLORD = 'landlord', 'landlord'
@@ -84,7 +82,7 @@ class UserAccount(AbstractUser, PermissionsMixin):
     objects = UserAccountManager()
 
     USERNAME_FIELD = 'email'  # <- Make email the username field for authentication
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']  # Fields required when creating superuser
+    REQUIRED_FIELDS = ['first_name', 'last_name']  # Fields required when creating superuser
 
     def __str__(self):
         return self.email

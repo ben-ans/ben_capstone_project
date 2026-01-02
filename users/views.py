@@ -52,6 +52,7 @@ class CustomObtainAuthTokenView(ObtainAuthToken):
 class LogoutView(APIView):
     authentication_classes = [CustomTokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
 
     def post(self, request, *args, **kwargs):
         # Delete the DRF token object
